@@ -22,8 +22,8 @@ using namespace glm;
 #define RESX 640.0
 #define RESY 480.0
 #define EPS 0.001
-#define BUFFERSIZE 2
-#define RAND_BUFFERSIZE 4 * 640 * 480 //couldn't use RESX RESY bc they are floats
+#define BUFFERSIZE 3
+#define RAND_BUFFERSIZE 10000139
 
 #define SPEED 0.1
 
@@ -124,7 +124,7 @@ public:
 			movingRight = false;
 		}
 		if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-			mode = (mode + 1) % 3;
+			mode = (mode + 1) % 4;
 		}
 		
 	}
@@ -266,8 +266,10 @@ public:
 	void setupScene() {
 		ssbo_CPUMEM.pos[0] = vec4(0.9, -0.5, -2, 1);
 		ssbo_CPUMEM.col[0] = vec4(0.5, 0.5, 0.5, 0.1);
-		ssbo_CPUMEM.pos[1] = vec4(-3, 2, 1, 2);
+		ssbo_CPUMEM.pos[1] = vec4(-3, 0.5, 1, 2);
 		ssbo_CPUMEM.col[1] = vec4(1, 0.3, 0.0, 1);
+		ssbo_CPUMEM.pos[2] = vec4(7, 3, -5, 5);
+		ssbo_CPUMEM.col[2] = vec4(0, 0.3, 1, 0.8);
 		srand((unsigned)time(NULL));
 		for (int i = 0; i < RAND_BUFFERSIZE; i++) {
 			ssbo_CPUMEM.rand_buffer[i] = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;

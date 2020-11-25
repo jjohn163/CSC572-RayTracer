@@ -2,13 +2,13 @@
 #define EPS 0.001
 #define RESX 640.0
 #define RESY 480.0
-#define BUFFERSIZE 2
-#define RAND_BUFFERSIZE 4 * 640 * 480
+#define BUFFERSIZE 3
+#define RAND_BUFFERSIZE 10000139
 #define BACKGROUND vec3(0.6,0.6,1.0)
 #define GROUND_NORMAL vec3(0,1,0)
 #define GROUND_HEIGHT -2.0
-#define GROUND_COLOR vec3(0.5,0.5,0.5)
-#define MAX_DEPTH 5
+#define GROUND_COLOR vec3(0.1,1.0,0.1)
+#define MAX_DEPTH 20
 #define SPP 3
 layout(local_size_x = 1, local_size_y = 1) in;											//local group of shaders
 layout(rgba32f, binding = 0) uniform image2D img_input;									//input image
@@ -30,7 +30,7 @@ uniform float time;
 
 
 float rand(ivec2 coords, int offset) {
-	return rand_buffer[int(mod(coords.y * RESX + coords.x + time * 17 + offset * 37, RAND_BUFFERSIZE))];
+	return rand_buffer[int(mod(coords.y * 3 * RESX + coords.x * 5 * + time * 17 + offset * 37, RAND_BUFFERSIZE))];
 }
 
 void main() 
@@ -47,6 +47,10 @@ void main()
 	for (int s = 0; s < SPP; s++) {
 		float vp = (pixel_coords.y + rand(pixel_coords, rand_counter++)) / RESY;
 		float hp = (pixel_coords.x + rand(pixel_coords, rand_counter++)) / RESX;
+		if (s == 0) {
+			vp = (pixel_coords.y) / RESY;
+			hp = (pixel_coords.x) / RESX;
+		}
 		vec3 ray_position = eye;
 		vec3 ray_direction = LLC + (horizontal * hp) + (vertical * vp) - eye;
 		vec3 new_ray_position = ray_position;
@@ -102,7 +106,7 @@ void main()
 					hit_color = GROUND_COLOR;
 				}
 			}
-			if (depth == MAX_DEPTH) {
+			if (depth == MAX_DEPTH && s == 0) {
 				int location = int(pixel_coords.y * RESX + pixel_coords.x);
 				imageStore(normal_depth, pixel_coords, vec4((new_ray_direction + 1.0) / 2.0, t));
 			}
@@ -124,4 +128,5 @@ void main()
 	col.z = sqrt(scale * col.z);
 	
 	imageStore(img_output, pixel_coords, col);
+	imageStore(img_input, pixel_coords, col);
 	}
