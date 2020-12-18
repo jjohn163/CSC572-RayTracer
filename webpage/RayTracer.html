@@ -1,0 +1,195 @@
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Real Time Ray Tracing</title>
+
+  <link href="./3D Thematic Mapping_files/css" rel="stylesheet" type="text/css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #B1A296;
+      color: white;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    img {
+      display: block;
+    }
+
+    em {
+      font-size: 12px;
+    }
+
+    #signature {
+      margin-left: 30px;
+      font-style: oblique;
+    }
+
+    a:link,
+    a:visited {
+      color: #165788;
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus,
+    a:active {
+      text-decoration: underline;
+    }
+
+    .wrapper {
+      width: 80%;
+      margin: auto;
+      padding-top: 15px;
+      padding-bottom: 15px;
+      background-color:  #7395AE;
+    }
+
+    .container {
+      width: 80%;
+      margin: auto;
+    }
+
+    #content {
+      width: 78%;
+      margin: 70px auto 0px auto;
+    }
+
+    #content article {
+      margin-bottom: 150px;
+    }
+
+    #content h1,
+    #content h2 {
+      color: white;
+      margin-bottom: 10px;
+      font-weight: 200;
+      font-size: 48px;
+    }
+
+    #content h3 {
+      color: #557A95;
+      border-bottom: 1px solid #557A95;
+      text-transform: uppercase;
+      margin: 30px 0px 30px 0px;
+      font-size: 28px;
+      font-weight: 200;
+    }
+
+    #content p {
+      width: 100%;
+      line-height: 150%;
+      margin-bottom: 20px;
+    }
+
+    #content p:first-child {
+      font-size: 18px;
+      font-style: italic;
+      letter-spacing: 2px;
+    }
+
+    #content p:first-child:first-line {
+        font-weight: bold;
+    }
+  
+    #content ul {
+        padding-left:25px
+    }
+
+    pre {
+      font-size: 10px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #ddd;
+    }
+
+    .column {
+      float: left;
+      width: 40%;
+      padding: 10px;
+      margin: 5px;
+    }
+
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+  </style>
+</head>
+
+<body cz-shortcut-listen="true"><div class="wrapper"><section id="content">
+
+<h1>Real-Time Ray Tracing</h1>
+<h4 style="color:#C2CAD0">A take on a compute-shader based ray tracer for CSC 572<br><br></h4>
+<p>
+Joseph Johnson. Kevin Label.<br>
+Fall 2020
+</p>
+
+<article> <!-- This adds padding at the top and bottom -->
+
+<h3>Project Description</h3>
+
+<p>
+  Ray tracing is an advanced rendering technique that involves casting rays in a scene and detecting the light as the ray bounces off objects in the scene.  This allows for realistic images to be produced because it more accurately models how light interacts with objects in the real world.
+  <br>
+  <br>
+  This is a computationally expensive problem - at least one ray is cast per pixel and sequentially computing the light returned for each ray takes a significant amount of time.  This is amplified when multiple rays must be cast per pixel for more realistic looking images.
+  <br>
+  <br>
+  Our aim with this project was to create a ray tracer using compute shaders. Each ray is independent of other rays being sent and can therefore be computed in any order. We assigned groups of pixels to each group in the shader - the amount per group dependent on the resolution of the screen.
+</p>
+
+<h3>Details</h3>
+
+<p>
+  For each pixel, we dispatch a shader invocation to cast a ray into the scene and calculate the color. This ray will test to every object in the scene to see what is the closest hit in its path.  The ray then bounces off the closest object and keeps doing so until it hits nothing or reaches a maximum recursive depth. After tracing each pixel, we store color, depth, and normal information in textures that are used to render the various modes.
+  <br><br>
+  Four different modes were implemented: a denoising mode, low sample mode, depth mode, and normal mode. These can be switched between using the m key. The primary mode, denoising, is calculated by taking a weighted average for each pixel with its neighboring pixels. The weight for each of the neighbors is determined by how close the normal, depth, and luminence is to the current pixel.
+  <br><br>
+  A display of the various modes can be viewed below.
+</p>
+
+<center>
+  <div class="row">
+    <div class="column" style="background-color:#5D5C61;">
+      <p>Denoise Mode</p>
+      <img src="./RayTracer_files/Denoise.PNG" width="100%">
+      <em>Denoised image (as described above)</em>
+    </div>
+    <div class="column" style="background-color:#379683;">
+      <p>Low Sample Mode</p>
+      <img src="./RayTracer_files/LowSample.PNG" width="100%">
+      <em>A low sample ray trace of the scene</em>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column" style="background-color:#B1A296;">
+      <p>Depth Mode</p>
+      <img src="./RayTracer_files/Depth.PNG" width="100%">
+      <em>Visualization of the depth-buffer</em>
+    </div>
+    <div class="column" style="background-color:#bbb;">
+      <p>Normal Mode</p>
+      <img src="./RayTracer_files/Normal.PNG" width="100%">
+      <em>Visualization of the normal-buffer</em>
+    </div>
+  </div>
+</center>
+<br>
+<p>
+  We also implemented the ability to navigate the virtual world using the WASD keys to move forward, left, backwards, and right respectively. A scene where the user has moved from the original start position can be viewed below.
+</p>
+<img src="./RayTracer_files/Movement.PNG" width="50%">
+<em>Navigation of the scene is possible using the WASD keys</em>
+
+</article></section></div>
+</body></html>
