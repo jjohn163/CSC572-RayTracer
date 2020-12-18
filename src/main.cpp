@@ -34,6 +34,7 @@ std::vector<unsigned char> buffer2(RESX * RESY * 4);
 
 GLuint computeRayTracingProgram, computeFilteringProgram;
 int mode = 0;
+int num_modes = 2;
 
 
  
@@ -124,7 +125,15 @@ public:
 			movingRight = false;
 		}
 		if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-			mode = (mode + 1) % 4;
+			mode = (mode + 1) % num_modes;
+		}
+		if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+			if (num_modes == 6) {
+				num_modes = 2;
+			}
+			else {
+				num_modes = 6;
+			}
 		}
 		
 	}
@@ -478,6 +487,7 @@ int main(int argc, char **argv)
 	// Loop until the user closes the window.
 	double timef = 0;
 	int printframes = 0;
+	get_last_elapsed_time();
 	while(! glfwWindowShouldClose(windowManager->getHandle()))
 	{
 
@@ -490,7 +500,7 @@ int main(int argc, char **argv)
 		// Poll for and process events.
 		glfwPollEvents();
 	}
-
+	cout << endl << "framrate: "<< 1.0 / (get_last_elapsed_time() / printframes) << endl;
 	// Quit program.
 	windowManager->shutdown();
 	return 0;

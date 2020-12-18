@@ -32,20 +32,12 @@ void main()
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 col;
 	int location = int(pixel_coords.y * RESX + pixel_coords.x);
-	if (mode == 0) {
+	if (mode == 0) { //display the original output
 		col = imageLoad(img_input, pixel_coords);
 	}
-	else if (mode == 1) { //display the normals
-		col = vec4(imageLoad(normal_depth, pixel_coords).xyz, 1.0);
-		
-	}
-	else if (mode == 2) {//display the depth
-		float depth = 1.0 - min(1.0, imageLoad(normal_depth, pixel_coords).w / 20.0);
-		col = vec4(depth, depth, depth, 1);
-	}
-	else {
-		float weight = 1;
-		col = imageLoad(img_output, pixel_coords);
+	else if (mode == 1) { //display the denoised output
+		float weight = 0;
+		col = vec4(0, 0, 0, 1);
 		vec3 cur_normal = imageLoad(normal_depth, pixel_coords).xyz * 2.0 - 1;
 		float cur_depth = imageLoad(normal_depth, pixel_coords).w;
 		float cur_lum = col.r * 0.2126 + col.g * 0.7152 + col.b * 0.0722; //calculation for luminance
@@ -61,15 +53,43 @@ void main()
 					float wN = dot(cur_normal, neighbor_normal);
 					float wZ = min(0, 0.1 - abs(cur_depth - neighbor_depth));
 					float wL = 1.0 - abs(cur_lum - neighbor_lum);
-					float neighbor_weight = (wN + wZ) * wL;
+					float neighbor_weight = (wN + wZ + wL);
 					if (neighbor_weight > 0.1) {
 						col += neighbor_color * neighbor_weight;
 						weight += neighbor_weight;
 					}
+					
 				}
 			}
 		}
 		col /= weight;
+	}
+	else if (mode == 2) { //display the blurred output
+		float weight = 0;
+		col = vec4(0, 0, 0, 1);
+		for (int x = -2; x <= 2; x++) {
+			for (int y = -2; y <= 2; y++) {
+				if (in_bounds(vec2(pixel_coords.x + x, pixel_coords.y + y))) {
+					ivec2 neighbor = ivec2(pixel_coords.x + x, pixel_coords.y + y);
+					vec4 neighbor_color = imageLoad(img_output, neighbor);
+					col += neighbor_color;
+					weight += 1;
+				}
+			}
+		}
+		col /= weight;
+	}
+	else if (mode == 3) {//display the depth
+		float depth = 1.0 - min(1.0, imageLoad(normal_depth, pixel_coords).w / 20.0);
+		col = vec4(depth, depth, depth, 1);
+	}
+	else if (mode == 4) { //display the normals
+		col = vec4(imageLoad(normal_depth, pixel_coords).xyz, 1.0);
+	}
+	else { //display the luminance
+		col = imageLoad(img_input, pixel_coords);
+		float cur_lum = col.r * 0.2126 + col.g * 0.7152 + col.b * 0.0722;
+		col = vec4(cur_lum, cur_lum, cur_lum, col.w);
 	}
 
 	
